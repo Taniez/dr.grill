@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {menu,priceOrder} from '../src/menu.js';
+test('ครบ 44 เมนู และจำนวนแต่ละหมวดถูกต้อง',()=>{assert.equal(menu.length,44);assert.equal(new Set(menu.map(m=>m.id)).size,44);for(const [key,count]of Object.entries({rice:15,side:15,extra:4,snack:10}))assert.equal(menu.filter(m=>m.category===key).length,count);});
+test('ราคาครบตามใบสั่งอาหาร',()=>{for(const m of menu){if(m.category==='rice'){assert.equal(m.price,m.meat==='โคขุน'?70:60);assert.equal(m.special,m.meat==='โคขุน'?80:70);}if(m.category==='side')assert.equal(m.price,m.meat==='โคขุน'?120:100);}assert.deepEqual(menu.filter(m=>m.category==='extra').map(m=>m.price),[10,10,15,10]);assert.deepEqual(menu.filter(m=>m.category==='snack').map(m=>m.price),[10,10,10,10,10,10,10,10,10,20]);});
+test('เซิร์ฟเวอร์คิดราคาเอง ไม่เชื่อราคาที่ส่งจากหน้าเว็บ',()=>{const o=priceOrder({table:'5',items:[{id:'rice-4-0',size:'special',qty:2,price:1},{id:'extra-0',size:'normal',qty:1}]});assert.equal(o.total,170);});
+test('ปฏิเสธเมนูปลอม จำนวนติดลบ และขนาดพิเศษที่ไม่มี',()=>{for(const item of [{id:'unknown',size:'normal',qty:1},{id:'rice-0-0',size:'normal',qty:-1},{id:'rice-0-0',size:'normal',qty:1.5},{id:'snack-0',size:'special',qty:1}])assert.throws(()=>priceOrder({table:'1',items:[item]}));assert.throws(()=>priceOrder({items:[]}));assert.throws(()=>priceOrder({table:'1',phone:'bad',items:[{id:'rice-0-0',size:'normal',qty:1}]}));});

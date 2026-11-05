@@ -1,0 +1,26 @@
+{
+  "name": "doctor-grill",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "node server/dev.mjs",
+    "build": "vite build",
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "db:setup": "node --env-file-if-exists=.env scripts/db.mjs setup",
+    "db:check": "node --env-file-if-exists=.env scripts/db.mjs check",
+    "db:import-legacy": "node --env-file-if-exists=.env scripts/db.mjs import-legacy",
+    "db:generate": "node scripts/generate-sql.mjs"
+  },
+  "dependencies": {
+    "mysql2": "^3.24.6",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}
