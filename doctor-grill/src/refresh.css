@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap');
+:root{font-family:'Noto Sans Thai','Leelawadee UI',sans-serif}
+button,input,textarea,select{font:inherit}
+.primary,.service-strip{background:var(--orange);color:white}
+.primary:hover{background:var(--brown);color:white}
+header{border-bottom:3px solid var(--orange)}
+.hero{background:linear-gradient(120deg,#fff4e9,var(--cream) 70%)}
+.hero h1,.section-heading h1{color:var(--orange)}
+.tabs button.active{background:var(--orange);color:white;border-color:var(--orange)}
+.menu-actions button{border-color:#f1420b55;background:#fff3eb}
+.menu-actions button:hover{background:var(--orange);color:white}
+.customize-link{display:block;margin-top:16px;color:var(--brown);font-weight:600}
+.sort-control{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.sort-control select{padding:10px;border:1px solid #f1420b55;border-radius:10px;background:white;color:var(--ink)}
+.floating-cart{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom));width:68px;height:68px;display:grid;place-items:center;background:var(--orange);color:white;border:2px solid white;border-radius:50%;box-shadow:0 6px 24px #963b1e55;z-index:30}
+.floating-cart svg{width:32px;height:32px}.floating-cart b{position:absolute;right:-4px;top:-4px;background:var(--yellow);color:var(--ink);border-radius:99px;min-width:25px;padding:2px 6px;text-align:center;font-size:13px}
+.portion-options{display:flex;gap:12px;flex-wrap:wrap}.portion-options label{display:flex;align-items:center;gap:9px;flex:1;padding:15px;border:1px solid #f1420b55;border-radius:12px;min-width:160px}.portion-options label:has(input:checked){background:#fff0e7;border:2px solid var(--orange)}.portion-options input{width:auto;accent-color:var(--orange)}
+.form-stack fieldset{border:1px solid #f1420b44;border-radius:14px;padding:16px;min-width:0}.form-stack legend{font-weight:700}.extra-row{padding:10px 0}.extra-row input{max-width:85px}
+.alert-controls{background:#fff0e7;padding:20px;border:1px solid #f1420b66;border-radius:16px;margin-bottom:24px}.alert-controls button{background:var(--orange);color:white}.alert-controls p{margin-bottom:0}
+body:has(.floating-cart) footer{padding-bottom:110px}
+@media(max-width:700px){.floating-cart{right:18px;width:60px;height:60px}.product-layout .product-photo{max-height:330px}.portion-options label{min-width:120px}.sort-control{width:100%}}
+@media print{.floating-cart,.alert-controls{display:none!important}}

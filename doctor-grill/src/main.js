@@ -10,7 +10,7 @@ if(params.get('view')==='kitchen')page='kitchen';
 const names={index:'หน้าแรก',menu:'เมนูอาหาร',product:'รายละเอียดอาหาร',cooking:'จัดจานของคุณ',checkout:'ตะกร้าและใบสั่ง',queue:'ติดตามคิว',location:'ติดต่อร้าน',qr:'สั่งอาหาร / QR โต๊ะ','admin-login':'เข้าสู่ระบบพนักงาน',login:'เข้าสู่ระบบพนักงาน',dashboard:'ภาพรวมร้าน',orders:'ออเดอร์ทั้งหมด',kitchen:'หน้าครัว','manage-menu':'จัดการเมนู',sales:'รายงานยอดขาย'};
 const admin=['dashboard','orders','kitchen','manage-menu','sales'].includes(page);
 document.title=(names[page]||'ไม่พบหน้าเว็บ')+' | ด็อกเตอร์กริล';document.body.dataset.page=page;
-const publicNav=[['index','หน้าแรก'],['menu','เมนูอาหาร'],['cooking','จัดจาน'],['queue','ติดตามคิว'],['location','ติดต่อร้าน']];
+const publicNav=[['index','หน้าแรก'],['menu','เมนูอาหาร'],['queue','ติดตามคิว'],['location','ติดต่อร้าน']];
 const adminNav=[['dashboard','ภาพรวม'],['orders','ออเดอร์'],['kitchen','หน้าครัว'],['manage-menu','จัดการเมนู'],['sales','ยอดขาย'],['qr','QR โต๊ะ']];
 const links=list=>list.map(([id,label])=>`<a href="/${id}.html" ${id===page?'aria-current="page"':''}>${label}</a>`).join('');
 $('#app').innerHTML=`<header><a class="brand" href="/index.html"><img class="brand-logo" src="/images/logo.webp" alt="โลโก้ด็อกเตอร์กริล" width="68" height="68"><span>ด็อกเตอร์กริล<small>DOCTOR GRILL</small></span></a><nav aria-label="เมนูหลัก">${links(publicNav)}<a class="cart-link" href="/checkout.html">ตะกร้า <b data-cart-count>0</b></a><a href="/dashboard.html">หลังร้าน ↗</a></nav><details class="mobile-nav"><summary>เมนู ☰</summary><nav>${links(publicNav)}<a href="/checkout.html">ตะกร้า (<span data-cart-count>0</span>)</a><a href="/dashboard.html">หลังร้าน</a></nav></details></header>${admin?`<div class="admin-nav"><nav aria-label="เมนูหลังร้าน">${links(adminNav)}</nav><button id="logout">ออกจากระบบ</button></div>`:''}<main id="main"><div class="empty">กำลังโหลด…</div></main><footer><b>ด็อกเตอร์กริล</b><span>รับทำข้าวกล่อง · <a href="tel:0638462546">0638462546</a> / <a href="tel:0615988666">0615988666</a></span><a href="/qr.html">สั่งอาหารที่โต๊ะ</a></footer><div id="toast" role="status" aria-live="polite"></div>`;
@@ -22,3 +22,5 @@ try{
  if(['index','menu','product','cooking','checkout'].includes(page))await loadCatalog();
  if(routes[page])await routes[page]();else $('#main').innerHTML='<section class="page-section"><h1>ไม่พบหน้าเว็บนี้</h1><a class="primary" href="/index.html">กลับหน้าร้าน</a></section>';
 }catch(e){errorView(e);}
+
+import './refresh.css';
