@@ -1,3 +1,4 @@
+import {withMenuImage} from '../src/menu-images.js';
 import {randomUUID,createHash} from 'node:crypto';
 import {connectDatabase,sqlTime,isoTime} from './db/connection.mjs';
 import {setupDatabase,checkDatabase,menuColumns,menuValues} from './db/bootstrap.mjs';
@@ -11,14 +12,14 @@ export async function openStore(){
  async function byKey(key,query=q){const rows=await query('SELECT * FROM dg_orders WHERE request_key=?',[key]);if(!rows.length)return null;return {...(await hydrate(rows,query))[0],token:rows[0].tracking_token};}
  const store={driver:db.driver,close:db.close,
   async ping(){await q('SELECT 1 AS ok');return true;},
-  async catalog(){return (await q('SELECT * FROM dg_menu_items ORDER BY id')).map(menuRow);},
+  async catalog(){return (await q('SELECT * FROM dg_menu_items ORDER BY id')).map(menuRow).map(withMenuImage);},
   async saveMenu(m){const now=sqlTime();return db.transaction(async tx=>{const old=await tx('SELECT id FROM dg_menu_items WHERE id=?',[m.id]);if(old.length)await tx('UPDATE dg_menu_items SET category_id=?,name=?,price_baht=?,special_price_baht=?,unit=?,meat=?,image_path=?,is_available=?,is_archived=?,updated_at=? WHERE id=?',[m.category,m.name,m.price,m.special??null,m.unit,m.meat||null,m.image||null,m.available?1:0,m.archived?1:0,now,m.id]);else await tx(`INSERT INTO dg_menu_items (${menuColumns}) VALUES (${Array(12).fill('?').join(',')})`,menuValues(m,now));return m;});},
   byKey,
-  async create(order,key,token){try{return await db.transaction(async tx=>{
+  async create(order,key,token,actor='customer'){try{return await db.transaction(async tx=>{
    const old=await byKey(key,tx);if(old)return old;const id=randomUUID(),now=sqlTime();
    await tx('INSERT INTO dg_orders (id,request_key,tracking_token,table_number,customer_name,customer_phone,note,status,total_baht,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)',[id,key,token,order.table,order.name,order.phone,order.note,'new',order.total,now,now]);
    for(const [i,x]of order.items.entries())await tx('INSERT INTO dg_order_items (order_id,line_number,menu_item_id,menu_id_snapshot,name_snapshot,unit_snapshot,portion,quantity,unit_price_baht,line_total_baht) VALUES (?,?,?,?,?,?,?,?,?,?)',[id,i+1,x.id,x.id,x.name,x.unit,x.size,x.qty,x.price,x.qty*x.price]);
-   await tx('INSERT INTO dg_order_events (id,order_id,from_status,to_status,actor,created_at) VALUES (?,?,?,?,?,?)',[randomUUID(),id,null,'new','customer',now]);
+   await tx('INSERT INTO dg_order_events (id,order_id,from_status,to_status,actor,created_at) VALUES (?,?,?,?,?,?)',[randomUUID(),id,null,'new',actor,now]);
    return {...order,id,createdAt:isoTime(now),status:'new',token};
   });}catch(e){const old=await byKey(key);if(old)return old;throw e;}},
   async get(id,token){return (await hydrate(await q('SELECT * FROM dg_orders WHERE id=? AND tracking_token=?',[id,token])))[0]||null;},

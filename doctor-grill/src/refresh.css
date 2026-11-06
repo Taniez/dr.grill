@@ -20,3 +20,5 @@ header{border-bottom:3px solid var(--orange)}
 body:has(.floating-cart) footer{padding-bottom:110px}
 @media(max-width:700px){.floating-cart{right:18px;width:60px;height:60px}.product-layout .product-photo{max-height:330px}.portion-options label{min-width:120px}.sort-control{width:100%}}
 @media print{.floating-cart,.alert-controls{display:none!important}}
+
+.staff-menu{max-height:75vh;overflow:auto;margin-top:18px}.staff-menu article{display:flex;gap:12px;padding:16px 0;border-bottom:1px solid #f1420b33}.staff-menu img{width:85px;height:85px;object-fit:cover;border-radius:10px}.staff-menu b{display:block;margin-bottom:8px}.staff-menu button{margin:3px;padding:8px;background:#fff0e7}.staff-menu+form{align-self:start}

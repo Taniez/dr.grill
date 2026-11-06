@@ -12,6 +12,7 @@ test('API: persistence, authentication, duplicate submission, status transitions
  try{
   await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('server timeout')),10000);child.stdout.on('data',d=>{if(String(d).includes('Doctor Grill API')){clearTimeout(timer);resolve();}});child.on('exit',code=>{clearTimeout(timer);reject(Error('server exited '+code));});});
   assert.equal((await req('/admin/orders')).status,401);
+  assert.equal((await req('/admin/orders','POST',{})).status,401);
   assert.equal((await req('/orders','POST',{}, {Origin:'https://evil.example'})).status,403);
   const input={table:'7',name:'ทดสอบ',items:[{id:'rice-4-0',size:'special',qty:2,price:1}],requestKey:randomUUID()};
   const response=await req('/orders','POST',input,{Origin:'http://127.0.0.1:5173'});assert.equal(response.status,201);const order=await response.json();assert.equal(order.total,160);
@@ -24,6 +25,11 @@ test('API: persistence, authentication, duplicate submission, status transitions
   assert.equal((await req('/admin/orders/'+order.id,'PATCH',{status:'completed'},auth)).status,409);
   for(const status of ['cooking','ready','completed'])assert.equal((await req('/admin/orders/'+order.id,'PATCH',{status},auth)).status,200);
   const saved=await(await req('/orders/'+order.id,'GET',null,{'X-Order-Token':order.token})).json();assert.equal(saved.status,'completed');
+  const staffInput={table:'POS-1',items:[{id:'rice-4-0',size:'special',qty:1},{id:'extra-1',size:'normal',qty:1}],requestKey:randomUUID(),expectedTotal:90};
+  assert.equal((await req('/admin/orders','POST',{...staffInput,expectedTotal:1},auth)).status,409);
+  const staffResponse=await req('/admin/orders','POST',staffInput,auth);assert.equal(staffResponse.status,201);const staffOrder=await staffResponse.json();assert.equal(staffOrder.total,90);
+  const staffRetry=await(await req('/admin/orders','POST',staffInput,auth)).json();assert.equal(staffRetry.id,staffOrder.id);
+  assert((await(await req('/admin/orders?status=active','GET',null,auth)).json()).some(o=>o.id===staffOrder.id));
   await req('/logout','POST',{},auth);assert.equal((await req('/admin/orders','GET',null,auth)).status,401);
  }finally{child.kill();}
 });

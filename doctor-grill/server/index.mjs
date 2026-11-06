@@ -20,7 +20,7 @@ function validMenu(input,existing){
  return {id:existing?.id||'custom-'+randomUUID(),name,category,price:input.price,special:category==='rice'?input.special:undefined,unit:category==='rice'?'จาน':category==='snack'?'ไม้':'ที่',image,available:input.available,archived:existing?.archived||false};
 }
 function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s))&&new Date(s).toISOString().slice(0,10)===s;}
-const pages=new Set(['index','menu','product','cooking','checkout','queue','location','qr','admin-login','login','dashboard','orders','kitchen','manage-menu','sales']);
+const pages=new Set(['index','menu','product','cooking','checkout','queue','location','qr','admin-login','login','dashboard','orders','kitchen','manage-menu','sales','staff-order']);
 const removed=new Set(['random','wheel','member','customer','register','community','comunity','reviews','review','ai']);
 const server=http.createServer(async(req,res)=>{
  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','DENY');
@@ -55,6 +55,12 @@ const server=http.createServer(async(req,res)=>{
    }
    if(path.startsWith('/api/admin/')){
     if(!auth)return send(401,{error:'กรุณาเข้าสู่ระบบหลังร้าน'});
+    if(path==='/api/admin/orders'&&req.method==='POST'){
+     const input=await body(req);if(!/^[0-9a-f-]{36}$/i.test(input.requestKey||''))return send(400,{error:'รหัสคำขอไม่ถูกต้อง'});
+     const old=await store.byKey(input.requestKey);if(old)return send(200,old);
+     const order=priceOrder(input,await store.catalog());if(input.expectedTotal!==undefined&&input.expectedTotal!==order.total)return send(409,{error:'ราคาเปลี่ยนแล้ว กรุณารีโหลดหน้าเพื่อตรวจยอด'});
+     return send(201,await store.create(order,input.requestKey,randomBytes(24).toString('hex'),'staff'));
+    }
     if(path==='/api/admin/orders'&&req.method==='GET'){
      const offset=Number(url.searchParams.get('offset')||0),status=url.searchParams.get('status')||'all',search=(url.searchParams.get('q')||'').trim().slice(0,80);
      if(!Number.isSafeInteger(offset)||offset<0||offset>1000000||!['all','active',...Object.keys(transitions)].includes(status))return send(400,{error:'ตัวกรองไม่ถูกต้อง'});
